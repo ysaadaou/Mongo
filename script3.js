@@ -1,14 +1,14 @@
 window.addEventListener('resize', function() {
     var canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth/2;
-    canvas.height = window.innerHeight/1.2;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     updateLine();
   });
   
 let id = 0;
 var canvas = document.getElementById("canvas");
-canvas.height = window.innerHeight/1.2;
-canvas.width = window.innerWidth / 2;
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
 var ctx = canvas.getContext("2d");
 function Line(startx, starty, endx,endy){
 
@@ -141,14 +141,19 @@ if (index !== -1) {
             if(ConnectedClasses[index][other+1] == "right"){
                 ConnectedClasses[index][other].right.style.backgroundColor = "red";
                 ConnectedClasses[index][other].multRight.remove();
-
+                if(position == "right")
+                ConnectedClasses[index][i].multRight.remove();
+                else
                 ConnectedClasses[index][i].multLeft.remove();
             }
             else{
             ConnectedClasses[index][other].left.style.backgroundColor = "red";
             ConnectedClasses[index][other].multLeft.remove();
 
-            ConnectedClasses[index][i].multRight.remove();
+                if(position == "right")
+                ConnectedClasses[index][i].multRight.remove();
+                else
+                ConnectedClasses[index][i].multLeft.remove();
             }
 }
     ConnectedClasses.splice(index, 1);
@@ -163,7 +168,6 @@ class DraggableDiv {
         this.collection = {};
         this.connectedRight = false;
         this.connectedLeft = false;
-        console.log(this.id);
         this.div.classList.add("draggable");
         this.input = document.createElement("input");
         this.input.classList.add("className");
@@ -172,6 +176,7 @@ class DraggableDiv {
         this.textarea = document.createElement("textarea");
         this.textarea.classList.add("classAttributes");
         this.textarea.setAttribute("placeholder", "Attributes");
+        this.textarea.setAttribute("spellcheck", "false");
         this.left = document.createElement("div");
         this.left.classList.add("circle");
         this.left.classList.add("left-point");
@@ -208,7 +213,6 @@ class DraggableDiv {
             addConnections(this, "right")
         }
 
-        console.log(ConnectedClasses)
     }
     _handleConnectionLeft(e){
         if(this.left.style.backgroundColor == "green"){
@@ -223,7 +227,6 @@ class DraggableDiv {
             this.connectedLeft = true;
             addConnections(this, "left")
         }
-        console.log(ConnectedClasses)
     }
     _dragInit(e) {
         this.selected = true;
@@ -314,7 +317,13 @@ createDivButton.addEventListener("click", function() {
     divs.push(div);
 });
 
-
+var deleteClass = document.getElementById("deleteClass");
+deleteClass.addEventListener("click", function() {
+    if(divs.length != 0){
+    lastDiv = divs.pop();
+    lastDiv.div.remove();}
+}
+)
 let Query = "";
 function query(relationtype,i){
     let Col1 ={};
@@ -355,18 +364,18 @@ function query(relationtype,i){
     {Query = `db.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
 }
 else {
-    Query = `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})\ndb.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
+    Query = `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})\n\ndb.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
 }
 }
 
 const textarea = document.getElementById("queryArea");
-const clearBtn = document.getElementById("clear-btn");
 
-clearBtn.addEventListener("click", () => {
-    textarea.value = "";
-});
 var extractButton = document.getElementById("extractInfo");
+const closeQueryButtons= document.querySelectorAll('[data-close-button]')
+const overlay = document.getElementById('overlay')
 extractButton.addEventListener("click", function() {
+    const queryCode = document.getElementById("query");
+    openModel(queryCode)
     
     for(let i = 0; i < ConnectedClasses.length; i++)
     {
@@ -403,3 +412,23 @@ extractButton.addEventListener("click", function() {
     textarea.value += "\n" + Query;
     Count = ConnectedClasses.length;
 });
+
+closeQueryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const queryCode = button.closest('.query')
+        closeQuery(queryCode)
+    })
+})
+
+function openModel(queryCode) {
+    if(queryCode == null) { return;}
+    queryCode.classList.add('active')
+    overlay.classList.add('active')
+}
+function closeQuery(queryCode) {
+    if(queryCode == null) return
+    textarea.value = "";
+    queryCode.classList.remove('active')
+    overlay.classList.remove('active')
+
+}
