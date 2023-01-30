@@ -325,6 +325,7 @@ deleteClass.addEventListener("click", function() {
 }
 )
 let Query = "";
+let Query1 = "";
 function query(relationtype,i){
     let Col1 ={};
     let Col0 = {};
@@ -358,13 +359,13 @@ function query(relationtype,i){
 
     if(ConnectedClasses[i][0].connectedLeft == true && ConnectedClasses[i][0].connectedRight == true)
     {
-    Query = `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})`;
+    Query1 = `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})`;
     }
     else if(ConnectedClasses[i][2].connectedLeft == true && ConnectedClasses[i][2].connectedRight == true)
-    {Query = `db.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
+    {Query1 = `\ndb.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
 }
 else {
-    Query = `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})\n\ndb.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})`;
+    Query += `db.${ConnectedClasses[i][0].getInput()}.insertOne({${firstCollection}})\n\ndb.${ConnectedClasses[i][2].getInput()}.insertOne({${secondCollection}})\n`;
 }
 }
 
@@ -374,6 +375,8 @@ var extractButton = document.getElementById("extractInfo");
 const closeQueryButtons= document.querySelectorAll('[data-close-button]')
 const overlay = document.getElementById('overlay')
 extractButton.addEventListener("click", function() {
+    Query="";
+    Query1="";
     const queryCode = document.getElementById("query");
     openModel(queryCode)
     
@@ -409,7 +412,7 @@ extractButton.addEventListener("click", function() {
     }
 } 
 
-    textarea.value += "\n" + Query;
+    textarea.value =  Query + "\n" + Query1;
     Count = ConnectedClasses.length;
 });
 
@@ -426,7 +429,7 @@ function openModel(queryCode) {
     overlay.classList.add('active')
 }
 function closeQuery(queryCode) {
-    if(queryCode == null) return
+    if(queryCode == null) return;
     textarea.value = "";
     queryCode.classList.remove('active')
     overlay.classList.remove('active')
